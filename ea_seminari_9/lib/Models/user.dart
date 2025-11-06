@@ -3,7 +3,6 @@ class User {
   final String username;
   final String gmail;
   final String birthday;
-  final String rol;
   final String? password;
   final String? token;
   final String? refreshToken;
@@ -13,7 +12,6 @@ class User {
     required this.username,
     required this.gmail,
     required this.birthday,
-    required this.rol,
     this.password,
     this.token,
     this.refreshToken,
@@ -25,7 +23,6 @@ class User {
       username: json['username'] ?? '',
       gmail: json['gmail'] ?? '',
       birthday: json['birthday'] ?? '',
-      rol: json['rol'] ?? 'user',
       token: json['token'],
       refreshToken: json['refreshToken'],
     );
@@ -37,7 +34,6 @@ class User {
       'gmail': gmail,
       'password': password,
       'birthday': birthday,
-      'rol': rol,
     };
   }
 }

@@ -238,7 +238,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               username: usernameController.text,
                               gmail: gmailController.text,
                               birthday: birthdayController.text,
-                              rol: 'user',
                               password: passwordController.text,
                             );
 

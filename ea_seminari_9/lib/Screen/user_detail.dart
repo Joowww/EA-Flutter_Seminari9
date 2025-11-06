@@ -104,7 +104,6 @@ class UserDetailScreen extends StatelessWidget {
                         const SizedBox(height: 12),
                         _buildInfoRow(Icons.cake, 'Cumpleaños:', user.birthday),
                         const SizedBox(height: 12),
-                        _buildInfoRow(Icons.people, 'Rol:', user.rol),
                       ],
                     ),
                   ),
