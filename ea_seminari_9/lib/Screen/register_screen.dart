@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controllers/auth_controller.dart';
 import '../Models/user.dart';
+import 'package:password_strength_checker/password_strength_checker.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -11,6 +12,19 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  Color _getPasswordBorderColor(PasswordStrength? strength) {
+    switch (strength) {
+      case PasswordStrength.strong:
+        return Colors.green;
+      case PasswordStrength.medium:
+        return Colors.orange;
+      case PasswordStrength.weak:
+        return Colors.red;
+      default:
+        return Colors.grey.shade200;
+    }
+  }
+  final ValueNotifier<PasswordStrength?> passwordStrengthNotifier = ValueNotifier<PasswordStrength?>(null);
   final AuthController authController = Get.find<AuthController>();
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController gmailController = TextEditingController();
@@ -68,6 +82,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
+  // Widget para mostrar requisitos de contraseña en tiempo real
+  Widget _buildPasswordRequirements(String password) {
+    final requirements = [
+      {
+        'label': 'Al menos 12 caracteres',
+        'valid': password.length >= 12,
+      },
+      {
+        'label': 'Al menos 1 letra minúscula',
+        'valid': RegExp(r'[a-z]').hasMatch(password),
+      },
+      {
+        'label': 'Al menos 1 letra mayúscula',
+        'valid': RegExp(r'[A-Z]').hasMatch(password),
+      },
+      {
+        'label': 'Al menos 1 dígito',
+        'valid': RegExp(r'[0-9]').hasMatch(password),
+      },
+      {
+        'label': 'Al menos 1 carácter especial',
+        'valid': RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(password),
+      },
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: requirements.map((req) {
+        Color color;
+        if (req['valid'] as bool) {
+          color = Colors.green;
+        } else if (password.isEmpty) {
+          color = Colors.grey;
+        } else {
+          color = Colors.red;
+        }
+        return Row(
+          children: [
+            Icon(
+              req['valid'] as bool ? Icons.check_circle : Icons.cancel,
+              color: color,
+              size: 18,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              req['label'] as String,
+              style: TextStyle(color: color, fontSize: 14),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
   String? _validateGmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Por favor ingresa tu gmail';
@@ -78,15 +145,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Por favor ingresa una contraseña';
-    }
-    if (value.length < 6) {
-      return 'La contraseña debe tener al menos 6 caracteres';
-    }
-    return null;
-  }
 
   String? _validateConfirmPassword(String? value) {
     if (value == null || value.isEmpty) {
@@ -130,6 +188,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     return null;
+  }
+
+  // Calcula la fuerza personalizada según requisitos
+  PasswordStrength _customPasswordStrength(String password) {
+    int count = 0;
+    if (password.length >= 12) count++;
+    if (RegExp(r'[a-z]').hasMatch(password)) count++;
+    if (RegExp(r'[A-Z]').hasMatch(password)) count++;
+    if (RegExp(r'[0-9]').hasMatch(password)) count++;
+    if (RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(password)) count++;
+    switch (count) {
+      case 5:
+        return PasswordStrength.secure;
+      case 4:
+        return PasswordStrength.strong;
+      case 3:
+        return PasswordStrength.medium;
+      default:
+        return PasswordStrength.weak;
+    }
   }
 
   @override
@@ -217,12 +295,116 @@ class _RegisterScreenState extends State<RegisterScreen> {
             validator: _validateGmail,
           ),
           const SizedBox(height: 16),
-          _buildPasswordField(
+          // Requisitos arriba del campo de contraseña, se reconstruyen en cada cambio
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _buildPasswordRequirements(passwordController.text),
+          ),
+          // Campo de contraseña igual que los otros, pero con onChanged para actualizar barra y requisitos
+          TextFormField(
             controller: passwordController,
-            label: 'Contraseña',
             obscureText: _obscurePassword,
-            onToggle: () => setState(() => _obscurePassword = !_obscurePassword),
-            validator: _validatePassword,
+            onChanged: (value) {
+              passwordStrengthNotifier.value = _customPasswordStrength(value);
+              setState(() {});
+            },
+            decoration: InputDecoration(
+              labelText: 'Contraseña',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: _getPasswordBorderColor(passwordStrengthNotifier.value),
+                  width: 2,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: _getPasswordBorderColor(passwordStrengthNotifier.value),
+                  width: 2,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: _getPasswordBorderColor(passwordStrengthNotifier.value),
+                  width: 2,
+                ),
+              ),
+              fillColor: Colors.grey.shade50,
+              filled: true,
+              prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.grey,
+                ),
+                onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // Barra de fuerza alineada a la izquierda con palabra
+          ValueListenableBuilder<PasswordStrength?>(
+            valueListenable: passwordStrengthNotifier,
+            builder: (context, strength, _) {
+              String label = '';
+              Color color = _getPasswordBorderColor(strength);
+              if (strength == PasswordStrength.secure) {
+                color = const Color(0xFF0B6C0E);
+              }
+              switch (strength) {
+                case PasswordStrength.weak:
+                  label = 'Weak';
+                  break;
+                case PasswordStrength.medium:
+                  label = 'Medium';
+                  break;
+                case PasswordStrength.strong:
+                  label = 'Strong';
+                  break;
+                case PasswordStrength.secure:
+                  label = 'Secure';
+                  break;
+                default:
+                  label = '';
+              }
+              return Row(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey.shade300,
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: _getStrengthWidth(strength),
+                        child: Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: color,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(height: 16),
           _buildPasswordField(
@@ -241,10 +423,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
             validator: _validateBirthday,
           ),
           const SizedBox(height: 32),
+          // Botón grande para generar contraseña
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton(
+              onPressed: () {
+                final generated = _generateStrongPassword();
+                passwordController.text = generated;
+                passwordStrengthNotifier.value = PasswordStrength.calculate(text: generated);
+                setState(() {});
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey.shade200,
+                foregroundColor: Colors.black87,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text('Generar contraseña'),
+            ),
+          ),
+          const SizedBox(height: 32),
           _buildRegisterButton(),
         ],
       ),
     );
+  }
+
+  // Devuelve el ancho de la barra según la fuerza
+  double _getStrengthWidth(PasswordStrength? strength) {
+    switch (strength) {
+      case PasswordStrength.strong:
+        return 0.75;
+      case PasswordStrength.medium:
+        return 0.4;
+      case PasswordStrength.weak:
+        return 0.15;
+      case PasswordStrength.secure:
+        return 1.0;
+      default:
+        return 0.0;
+    }
+  }
+
+  // Generador simple de contraseña fuerte
+  String _generateStrongPassword() {
+    // Puedes mejorar el generador si lo necesitas
+    return 'PDFL_#%n!KU)H-o2';
   }
 
   Widget _buildTextField({
