@@ -1,51 +1,45 @@
-import 'dart:convert';
+import 'package:ea_seminari_9/Models/user.dart';
+import 'package:ea_seminari_9/Services/user_services.dart';
 import 'package:get/get.dart';
-import '../Models/user.dart';
-import '../Interceptor/auth_interceptor.dart';
 
 class UserController extends GetxController {
-  final String apiUrl = 'http://localhost:3000/api/user';
   var isLoading = true.obs;
-  var users = <User>[].obs;
-  final client = AuthInterceptor();
+  var userList = <User>[].obs;
+  var selectedUser = Rxn<User>();
+ final UserServices _userServices;
 
+  UserController(this._userServices);
+  @override
+  void onInit() {
+    fetchUsers();
+    super.onInit();
+  }
 
-  Future<List<User>> fetchUsers() async {
+  void fetchUsers() async {
     try {
       isLoading(true);
-      final response = await client.get(Uri.parse(apiUrl),
-      );
-      
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        final usersList = data.map((json) => User.fromJson(json)).toList();
-        users.assignAll(usersList);
-        return usersList;
-      } else {
-        throw Exception('Error al cargar usuarios: ${response.statusCode}');
+      var users = await _userServices.fetchUsers(); 
+      if (users.isNotEmpty) {
+        userList.assignAll(users);
       }
-    } catch (e) {
-      print('Error in fetchUsers: $e');
-      throw Exception('Error al cargar usuarios: $e');
     } finally {
       isLoading(false);
     }
   }
-
-  Future<User> fetchUserById(String id) async {
+  fetchUserById(String id) async{
     try {
       isLoading(true);
-      final response = await client.get(Uri.parse('$apiUrl/$id')
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        return User.fromJson(data);
-      } else {
-        throw Exception('Error al cargar el usuario: ${response.statusCode}');
+      var user = await _userServices.fetchUserById(id);
+      selectedUser.value = user;
       }
-    } catch (e) {
-      print('Error in fetchUserById: $e');
-      throw Exception('Error al cargar el usuario: $e');
+      catch(e){
+        Get.snackbar(
+        "Error al cargar",
+        "No se pudo encontrar el usuario: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading(false);
     }
   }
 }

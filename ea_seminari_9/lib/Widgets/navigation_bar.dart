@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Screen/home.dart';
-import '../Screen/eventos_list.dart';
-import '../Screen/user_list.dart';
-import '../Screen/settings_screen.dart';
 
 class CustomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -69,18 +65,21 @@ class CustomNavBar extends StatelessWidget {
   }
 
   void _onItemTapped(int index) {
+
+    if (index == currentIndex) return;
+
     switch (index) {
       case 0:
-        Get.offAll(() => const HomeScreen());
+        Get.toNamed('/home');
         break;
       case 1:
-        Get.offAll(() => EventosListScreen());
+        Get.toNamed('/eventos');
         break;
       case 2:
-        Get.offAll(() => UserListScreen());
+        Get.toNamed('/users');
         break;
       case 3:
-        Get.offAll(() => SettingsScreen());
+        Get.toNamed('/settings');
         break;
     }
   }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../Models/eventos.dart';
 import 'package:get/get.dart';
-import '../Screen/eventos_detail.dart';
 
 class EventosCard extends StatelessWidget {
   final Evento evento;
@@ -16,7 +15,7 @@ class EventosCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         elevation: 2,
         child: InkWell(
-          onTap: () => Get.to(() => EventosDetailScreen(eventoId: evento.id)),
+          onTap: () => Get.toNamed('/evento/${evento.id}'),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),

@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Services/eventos_services.dart';
+import '../Controllers/eventos_controller.dart';
 import '../Widgets/eventos_card.dart';
 import '../Widgets/navigation_bar.dart';
 
-class EventosListScreen extends StatelessWidget {
-  final EventosService service = Get.put(EventosService());
+class EventosListScreen extends GetView<EventoController> {
 
-  EventosListScreen({super.key});
+  const EventosListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    service.loadEvents();
-
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
@@ -36,7 +33,7 @@ class EventosListScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Obx(() {
-          if (service.isLoading.value) {
+          if (controller.isLoading.value) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -49,9 +46,9 @@ class EventosListScreen extends StatelessWidget {
             );
           }
           return ListView.builder(
-            itemCount: service.events.length,
+            itemCount: controller.eventosList.length,
             itemBuilder: (context, index) {
-              return EventosCard(evento: service.events[index]);
+              return EventosCard(evento: controller.eventosList[index]);
             },
           );
         }),

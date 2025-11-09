@@ -15,8 +15,12 @@ class AuthInterceptor extends http.BaseClient {
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     // Añade token si hay
+    request.headers['Content-Type'] = 'application/json';
+    request.headers['Accept'] = 'application/json';
     final token = _auth.token;
+    print('el token es $token');
     if (token != null && token.isNotEmpty) {
+      
       request.headers['Authorization'] = 'Bearer $token';
     }
 
@@ -26,7 +30,6 @@ class AuthInterceptor extends http.BaseClient {
     if (response.statusCode == 401) {
       final ok = await _refreshToken();
       if (ok) {
-        // Clona y reintenta
         final retried = await _retry(request);
         return retried;
       }

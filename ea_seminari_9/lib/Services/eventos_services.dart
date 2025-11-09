@@ -1,32 +1,38 @@
+import 'package:ea_seminari_9/Models/eventos.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
-import '../Models/eventos.dart';
-import '../Controllers/eventos_controller.dart';
+import '../Interceptor/auth_interceptor.dart';
 
-class EventosService extends GetxService {
-  var events = <Evento>[].obs;
-  var isLoading = false.obs;
+class EventosServices {
+  final String baseUrl = 'http://localhost:3000/api/event';
+  final AuthInterceptor _client = Get.put(AuthInterceptor());
+  EventosServices();
 
-  final EventosController _eventController = EventosController();
+  Future<List<Evento>> fetchEvents() async {
+    final response = await _client.get(Uri.parse(baseUrl));
 
-  Future<void> loadEvents() async {
-    try {
-      isLoading.value = true;
-      events.value = await _eventController.fetchEvents();
-    } catch (e) {
-      print('Error cargando eventos: $e');
-    } finally {
-      isLoading.value = false;
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      List<Evento> eventos =
+          body.map((dynamic item) => Evento.fromJson(item)).toList();
+      return eventos;
+    } else {
+      throw Exception('Failed to load events');
     }
   }
-  Future<Evento> getEventoById(String id) async {
+  Future<Evento> fetchEventById(String id) async {
     try {
-      isLoading.value = true;
-      return await _eventController.fetchEventById(id);
+      
+      final response = await _client.get(Uri.parse('$baseUrl/$id'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return Evento.fromJson(data);
+      } else {
+        throw Exception('Error al cargar el Evento: ${response.statusCode}');
+      }
     } catch (e) {
-      print('Error cargando evento: $e');
-      rethrow;
-    } finally {
-      isLoading.value = false;
+      print('Error in fetchUserById: $e');
+      throw Exception('Error al cargar el Evento: $e');
     }
   }
 }

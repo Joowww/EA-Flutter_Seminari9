@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import '../Models/eventos.dart';
-import '../Services/eventos_services.dart';
+import '../Controllers/eventos_controller.dart';
+import 'package:get/get.dart';
 
-class EventosDetailScreen extends StatelessWidget {
+class EventosDetailScreen extends GetView<EventoController> {
   final String eventoId;
-  final EventosService service = EventosService();
 
-  EventosDetailScreen({super.key, required this.eventoId});
+  const EventosDetailScreen({super.key, required this.eventoId});
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (controller.selectedEvento.value?.id != eventoId) {
+        controller.fetchEventoById(eventoId);
+      }
+    });
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -18,58 +24,42 @@ class EventosDetailScreen extends StatelessWidget {
         foregroundColor: Colors.black87,
         elevation: 0,
       ),
-      body: FutureBuilder<Evento>(
-        future: service.getEventoById(eventoId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Cargando evento...'),
-                ],
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${snapshot.error}',
-                    style: const TextStyle(fontSize: 16, color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          } else if (!snapshot.hasData) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.event_busy, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'Evento no encontrado',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
 
-          final evento = snapshot.data!;
-          return _buildEventoDetail(evento);
-        },
-      ),
+      body: Obx(() {
+
+        if (controller.isLoading.value) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Cargando evento...'),
+              ],
+            ),
+          );
+        }
+
+        if (controller.selectedEvento.value == null) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.event_busy, size: 64, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  'Evento no encontrado',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
+              ],
+            ),
+          );
+        }
+        final evento = controller.selectedEvento.value!;
+        return _buildEventoDetail(evento);
+      }),
     );
   }
-
   Widget _buildEventoDetail(Evento evento) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),

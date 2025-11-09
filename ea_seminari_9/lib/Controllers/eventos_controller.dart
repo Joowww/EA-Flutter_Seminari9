@@ -1,28 +1,45 @@
-import 'dart:convert';
 import 'package:ea_seminari_9/Models/eventos.dart';
-import '../Interceptor/auth_interceptor.dart';
+import 'package:ea_seminari_9/Services/eventos_services.dart';
+import 'package:get/get.dart';
 
-class EventosController {
-  final String apiUrl = 'http://localhost:3000/api/event';
-  final client = AuthInterceptor();
-  Future<List<Evento>> fetchEvents() async {
+class EventoController extends GetxController {
+  var isLoading = true.obs;
+  var eventosList = <Evento>[].obs;
+  var selectedEvento = Rxn<Evento>();
+ final EventosServices _eventosServices;
 
-    final response = await client.get(Uri.parse(apiUrl),);
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Evento.fromJson(json)).toList();
-    } else {
-      throw Exception('Error al cargar los eventos');
-    }
-  }
-  Future<Evento> fetchEventById(String id) async {
-    final response = await client.get(Uri.parse('$apiUrl/$id'));
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      return Evento.fromJson(data);
-    } else {
-      throw Exception('Error al cargar el evento');
-    }
+  EventoController(this._eventosServices);
+  @override
+  void onInit() {
+    fetchEventos();
+    super.onInit();
   }
 
+  void fetchEventos() async {
+    try {
+      isLoading(true);
+      var eventos = await _eventosServices.fetchEvents(); 
+      if (eventos.isNotEmpty) {
+        eventosList.assignAll(eventos);
+      }
+    } finally {
+      isLoading(false);
+    }
+  }
+  fetchEventoById(String id) async{
+    try {
+      isLoading(true);
+      var evento = await _eventosServices.fetchEventById(id);
+      selectedEvento.value = evento;
+      }
+      catch(e){
+        Get.snackbar(
+        "Error al cargar",
+        "No se pudo encontrar el usuario: ${e.toString()}",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } finally {
+      isLoading(false);
+    }
+  }
 }

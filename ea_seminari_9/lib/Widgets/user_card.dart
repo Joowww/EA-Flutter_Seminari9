@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Models/user.dart';
-import '../Screen/user_detail.dart';
 
 class UserCard extends StatelessWidget {
   final User user;
@@ -16,7 +15,7 @@ class UserCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         elevation: 2,
         child: InkWell(
-          onTap: () => Get.to(() => UserDetailScreen(userId: user.id)),
+          onTap: () => Get.toNamed('/user/${user.id}'),
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(16),

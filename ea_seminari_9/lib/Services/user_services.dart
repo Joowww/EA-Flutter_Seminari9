@@ -1,35 +1,38 @@
-import 'package:flutter/material.dart';
+import 'package:ea_seminari_9/Models/user.dart';
+import 'dart:convert';
 import 'package:get/get.dart';
-import '../Models/user.dart';
-import '../Controllers/user_controller.dart';
+import '../Interceptor/auth_interceptor.dart';
 
-class UserServices extends GetxController {
-  final UserController _userController = UserController();
-  var users = <User>[].obs;
-  var isLoading = true.obs;
+class UserServices {
+  final String baseUrl = 'http://localhost:3000/api/user';
+  final AuthInterceptor _client = Get.put(AuthInterceptor());
+  UserServices();
 
-  Future<void> loadUsers() async {
-    try {
-      isLoading(true);
-      final usersList = await _userController.fetchUsers();
-      users.assignAll(usersList);
-    } catch (e) {
-      print('Error loading users: $e');
-      Get.snackbar(
-        'Error',
-        'No se pudieron cargar los usuarios: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } finally {
-      isLoading(false);
+  Future<List<User>> fetchUsers() async {
+    final response = await _client.get(Uri.parse(baseUrl));
+
+    if (response.statusCode == 200) {
+      List<dynamic> body = jsonDecode(response.body);
+      List<User> users =
+          body.map((dynamic item) => User.fromJson(item)).toList();
+      return users;
+    } else {
+      throw Exception('Failed to load users');
     }
   }
-
-  @override
-  void onInit() {
-    super.onInit();
-    loadUsers();
+  Future<User> fetchUserById(String id) async {
+    try {
+      
+      final response = await _client.get(Uri.parse('$baseUrl/$id'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return User.fromJson(data);
+      } else {
+        throw Exception('Error al cargar el usuario: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in fetchUserById: $e');
+      throw Exception('Error al cargar el usuario: $e');
+    }
   }
 }

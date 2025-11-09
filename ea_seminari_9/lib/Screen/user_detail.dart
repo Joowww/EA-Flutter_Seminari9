@@ -3,14 +3,15 @@ import 'package:get/get.dart';
 import '../Models/user.dart';
 import '../Controllers/user_controller.dart';
 
-class UserDetailScreen extends StatelessWidget {
+class UserDetailScreen extends GetView<UserController> {
   final String userId;
-  final UserController userController = Get.put(UserController());
-
   UserDetailScreen({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.fetchUserById(userId);
+    });
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -19,64 +20,34 @@ class UserDetailScreen extends StatelessWidget {
         foregroundColor: Colors.black87,
         elevation: 0,
       ),
-      body: FutureBuilder<User>(
-        future: userController.fetchUserById(userId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Cargando información del usuario...'),
-                ],
-              ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${snapshot.error}',
-                    style: const TextStyle(fontSize: 16, color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => Get.back(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF667EEA),
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text('Volver'),
-                  ),
-                ],
-              ),
-            );
-          } else if (!snapshot.hasData) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.person_off, size: 64, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text(
-                    'Usuario no encontrado',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final user = snapshot.data!;
-          return _buildUserDetail(user);
-        },
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Cargando información del usuario...'),
+              ],
+            ),
+          );
+        }
+        if (controller.selectedUser.value == null) {
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red),
+                SizedBox(height: 16),
+                Text("No se pudo cargar el usuario."),
+              ],
+            ),
+          );
+        }
+        final user = controller.selectedUser.value!;
+        return _buildUserDetail(user);
+      }),
     );
   }
 
@@ -85,11 +56,8 @@ class UserDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       child: Column(
         children: [
-          // Avatar y nombre
           _buildUserHeader(user),
           const SizedBox(height: 32),
-
-          // Información del usuario
           _buildUserInfoCard(user),
         ],
       ),
@@ -173,8 +141,6 @@ class UserDetailScreen extends StatelessWidget {
           _buildInfoRow(Icons.email, 'Email:', user.gmail),
           const SizedBox(height: 16),
           _buildInfoRow(Icons.cake, 'Fecha de Nacimiento:', user.birthday),
-          const SizedBox(height: 16),
-          _buildInfoRow(Icons.calendar_today, 'Miembro desde:', 'Fecha de registro'),
         ],
       ),
     );

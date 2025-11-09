@@ -1,13 +1,12 @@
+import 'package:ea_seminari_9/Controllers/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../Services/user_services.dart';
 import '../Widgets/user_card.dart';
 import '../Widgets/navigation_bar.dart';
 
-class UserListScreen extends StatelessWidget {
-  final UserServices userService = Get.put(UserServices());
+class UserListScreen extends GetView<UserController> {
 
-  UserListScreen({super.key});
+  const UserListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,7 @@ class UserListScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Obx(() {
-          if (userService.isLoading.value) {
+          if (controller.isLoading.value) {
             return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -34,7 +33,7 @@ class UserListScreen extends StatelessWidget {
             );
           }
 
-          if (userService.users.isEmpty) {
+          if (controller.userList.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -54,9 +53,9 @@ class UserListScreen extends StatelessWidget {
           }
 
           return ListView.builder(
-            itemCount: userService.users.length,
+            itemCount: controller.userList.length,
             itemBuilder: (context, index) {
-              final user = userService.users[index];
+              final user = controller.userList[index];
               return UserCard(user: user);
             },
           );
@@ -64,7 +63,7 @@ class UserListScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          userService.loadUsers();
+          controller.fetchUsers();
           Get.snackbar(
             'Actualizado',
             'Lista de usuarios actualizada',
@@ -72,8 +71,7 @@ class UserListScreen extends StatelessWidget {
             backgroundColor: Colors.green,
             colorText: Colors.white,
             borderRadius: 12,
-          );
-        },
+          );},
         backgroundColor: const Color(0xFF667EEA),
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
