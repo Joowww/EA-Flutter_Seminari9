@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../Controllers/auth_controller.dart';
 import '../Widgets/navigation_bar.dart';
-import 'eventos_list.dart';
-import 'user_list.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -111,7 +109,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: _buildAppBar(),
-      body: SingleChildScrollView( // ✅ SOLUCIÓN: Envolver en SingleChildScrollView
+      body: SingleChildScrollView( 
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
@@ -122,7 +120,7 @@ class HomeScreen extends StatelessWidget {
             _buildQuickActions(),
             const SizedBox(height: 24),
             _buildUserInfo(authController),
-            const SizedBox(height: 20), // Espacio extra al final para evitar overflow
+            const SizedBox(height: 20), 
           ],
         ),
       ),

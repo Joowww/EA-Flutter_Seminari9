@@ -19,7 +19,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['_id'] ?? '',
+      id: json['_id'] ?? json['id'] ?? '',
       username: json['username'] ?? '',
       gmail: json['gmail'] ?? '',
       birthday: json['birthday'] ?? '',
@@ -32,8 +32,8 @@ class User {
     return {
       'username': username,
       'gmail': gmail,
-      'password': password,
       'birthday': birthday,
+      if (password != null) 'password': password,
     };
   }
 }

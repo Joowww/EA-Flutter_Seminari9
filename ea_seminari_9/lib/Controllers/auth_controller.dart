@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import '../Models/user.dart';
 
 class AuthController extends GetxController {
-  // Usar IP en lugar de localhost para Flutter Web
   final String apiUrl = 'http://localhost:3000/api';
   var isLoggedIn = false.obs;
   var currentUser = Rxn<User>();

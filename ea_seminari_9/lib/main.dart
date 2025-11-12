@@ -10,6 +10,7 @@ import 'Bindings/eventos_binding.dart';
 import 'Screen/user_detail.dart';
 import 'Screen/eventos_list.dart';
 import 'Screen/settings_screen.dart';
+import 'Screen/edit_profile_screen.dart';
 import 'Bindings/user_bindings.dart';
 
 void main() {
@@ -71,6 +72,11 @@ class MyApp extends StatelessWidget {
         GetPage(
           name: '/settings',
           page: () => SettingsScreen(),
+        ),
+        GetPage(
+          name: '/edit_profile',
+          page: () => const EditProfileScreen(),
+          binding: UserBinding(),
         ),
         GetPage(
           name: '/user/:id',

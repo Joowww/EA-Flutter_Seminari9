@@ -45,7 +45,6 @@ class AuthInterceptor extends http.BaseClient {
   }
 
   http.BaseRequest _cloneRequestWithNewToken(http.BaseRequest original, String? newToken) {
-    // Copia método y url
     if (original is http.Request) {
       final r = http.Request(original.method, original.url);
       r.headers.addAll(original.headers);
@@ -81,7 +80,7 @@ class AuthInterceptor extends http.BaseClient {
 
     try {
       final refreshToken = _auth.refreshToken;
-      final userId = _auth.currentUser.value?.id; // asegúrate de tener id en tu modelo
+      final userId = _auth.currentUser.value?.id; 
 
       if (refreshToken == null || refreshToken.isEmpty || userId == null) {
         completer.complete(false);

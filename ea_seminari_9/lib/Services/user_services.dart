@@ -35,4 +35,25 @@ class UserServices {
       throw Exception('Error al cargar el usuario: $e');
     }
   }
+
+
+  Future<User> updateUser(String id, User user) async {
+    try {
+      final response = await _client.put(
+        Uri.parse('$baseUrl/$id'),
+        body: jsonEncode(user.toJson()),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return User.fromJson(data);
+      } else {
+        throw Exception('Error al actualizar el usuario: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in updateUser: $e');
+      throw Exception('Error al actualizar el usuario: $e');
+    }
+  }
 }

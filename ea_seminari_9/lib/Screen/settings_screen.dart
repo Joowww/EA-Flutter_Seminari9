@@ -124,6 +124,13 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           _buildSettingItem(
+            icon: Icons.edit_outlined,
+            title: 'Editar Perfil',
+            subtitle: 'Actualiza tu información personal',
+            onTap: () => Get.toNamed('/edit_profile'),
+          ),
+          const Divider(height: 1),
+          _buildSettingItem(
             icon: Icons.person_outline,
             title: 'Perfil',
             subtitle: 'Gestiona tu información personal',

@@ -32,9 +32,7 @@ class HomePage extends StatelessWidget {
   }
 }
 
-  // --- PasswordValidator utilitario para registro ---
   class PasswordValidator {
-    /// Valida la contraseña según criterios básicos y fuerza
     static String? validate(String? password) {
       if (password == null || password.isEmpty) {
         return 'Por favor ingresa una contraseña';
@@ -43,14 +41,12 @@ class HomePage extends StatelessWidget {
         return 'La contraseña debe tener al menos 6 caracteres';
       }
       final strength = PasswordStrength.calculate(text: password);
-      // Puedes ajustar el umbral según tu preferencia
       if (strength == PasswordStrength.weak) {
         return 'La contraseña es débil. Usa mayúsculas, números y símbolos.';
       }
       return null;
     }
 
-    /// Devuelve el texto descriptivo de la fuerza
     static String getStrengthText(PasswordStrength? strength) {
       switch (strength) {
         case PasswordStrength.weak:

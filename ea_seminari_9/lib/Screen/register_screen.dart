@@ -82,7 +82,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  // Widget para mostrar requisitos de contraseña en tiempo real
   Widget _buildPasswordRequirements(String password) {
     final requirements = [
       {
@@ -190,7 +189,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  // Calcula la fuerza personalizada según requisitos
   PasswordStrength _customPasswordStrength(String password) {
     int count = 0;
     if (password.length >= 12) count++;
@@ -463,7 +461,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // Generador aleatorio de contraseña fuerte
   String _generateStrongPassword({int length = 14}) {
     const String lower = 'abcdefghijklmnopqrstuvwxyz';
     const String upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

@@ -66,7 +66,6 @@ class EventosDetailScreen extends GetView<EventoController> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header con icono
           Center(
             child: Container(
               width: 100,
@@ -82,7 +81,6 @@ class EventosDetailScreen extends GetView<EventoController> {
           ),
           const SizedBox(height: 32),
 
-          // Nombre del evento
           Text(
             evento.name,
             style: const TextStyle(
@@ -93,11 +91,9 @@ class EventosDetailScreen extends GetView<EventoController> {
           ),
           const SizedBox(height: 24),
 
-          // Información del evento
           _buildInfoCard(evento),
           const SizedBox(height: 20),
 
-          // Participantes
           _buildParticipantsCard(evento),
         ],
       ),
