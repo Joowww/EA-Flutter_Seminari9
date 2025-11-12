@@ -1,8 +1,8 @@
-# 🐦 seminari_flutter
+# Seminari_flutter
 
 A new Flutter project developed as part of the Flutter Seminar.
 
-## 🚀 Getting Started
+## Getting Started
 
 This project serves as an introduction to Flutter application development.  
 If this is your first Flutter project, the following resources can help you get started:
@@ -11,9 +11,9 @@ If this is your first Flutter project, the following resources can help you get 
 - **[Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)**
 - **[Flutter Documentation](https://docs.flutter.dev)** — Tutorials, examples, mobile development guidance, and a full API reference.
 
-> ℹ️ All the content and explanations used in this project are also available in the **seminar presentation slides (PPT)**.
+> All the content and explanations used in this project are also available in the **seminar presentation slides (PPT)**.
 
-## ⚙️ Installation and Setup
+## Installation and Setup
 
 To set up and run this project locally:
 
